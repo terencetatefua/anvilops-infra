@@ -2,7 +2,7 @@
 # Every key here is overridable via --set or -f my-values.yaml.
 
 # --- workload ---------------------------------------------------------------
-replicaCount: 3
+replicaCount: 2
 
 image:
   repository: localhost:5001/anvil-app
