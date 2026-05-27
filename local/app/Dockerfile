@@ -1,19 +1,19 @@
-# ============================================================================
 # anvil-app image — multi-stage, non-root, minimal, signal-safe.
-# Local build is stdlib-only; the dependency layer is ready for boto3 when you
-# flip to AI_BACKEND=bedrock on AWS (just uncomment it in requirements.txt).
-# ============================================================================
 
 FROM python:3.12.8-slim AS builder
 WORKDIR /build
 COPY requirements.txt .
-RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
+RUN pip install --no-cache-dir --prefix=/install -r requirements.txt && \
+    mkdir -p /install
+
 FROM python:3.12.8-slim AS runtime
-RUN groupadd --system app && useradd --system --gid app --no-create-home app
+# Pin a numeric UID/GID so Kubernetes runAsNonRoot can verify by number.
+RUN groupadd --system --gid 10001 app && \
+    useradd  --system --uid 10001 --gid 10001 --no-create-home app
 WORKDIR /app
 COPY --from=builder /install /usr/local
-COPY --chown=app:app main.py .
-USER app
+COPY --chown=10001:10001 main.py .
+USER 10001
 EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD python -c "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/healthz',timeout=2).status==200 else 1)"

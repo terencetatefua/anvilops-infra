@@ -1,0 +1,38 @@
+# values.yaml — defaults for the anvil-app chart.
+# Every key here is overridable via --set or -f my-values.yaml.
+
+# --- workload ---------------------------------------------------------------
+replicaCount: 2
+
+image:
+  repository: localhost:5001/anvil-app
+  tag: dev
+  pullPolicy: IfNotPresent
+
+# --- service / ingress ------------------------------------------------------
+service:
+  port: 80                  # cluster-internal port exposed by the Service
+
+ingress:
+  enabled: true
+  className: nginx
+  host: anvil-app.local
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+
+# --- AI backend (the swap point) -------------------------------------------
+ai:
+  backend: ollama           # "ollama" locally, "bedrock" on AWS
+  ollama:
+    url: http://host.docker.internal:11434
+    model: llama3.2
+  bedrock:
+    modelId: anthropic.claude-3-haiku-20240307-v1:0
+
+# --- resources (small for a laptop) -----------------------------------------
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    memory: 128Mi
