@@ -1,0 +1,79 @@
+# ============================================================================
+# anvil-app — Deployment + Service + Ingress.
+# Image is built and pushed to the local registry (localhost:5001) by
+# local/app/build.sh, then deployed here. Reach it at http://anvil-app.local
+# ============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: anvil-app
+  namespace: anvil
+  labels: { app: anvil-app }
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: anvil-app }
+  template:
+    metadata:
+      labels: { app: anvil-app }
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: anvil-app
+          image: localhost:5001/anvil-app:dev
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          ports:
+            - containerPort: 8000
+          env:
+            - name: AI_BACKEND
+              value: "ollama"
+            # host.docker.internal = your Mac/Windows host, where Ollama runs
+            - name: OLLAMA_URL
+              value: "http://host.docker.internal:11434"
+            - name: OLLAMA_MODEL
+              value: "llama3.2"
+          readinessProbe:
+            httpGet: { path: /healthz, port: 8000 }
+            initialDelaySeconds: 3
+            periodSeconds: 10
+          resources:
+            requests: { cpu: 50m, memory: 64Mi }
+            limits:   { memory: 128Mi }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: anvil-app
+  namespace: anvil
+spec:
+  selector: { app: anvil-app }
+  ports:
+    - port: 80
+      targetPort: 8000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: anvil-app
+  namespace: anvil
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: anvil-app.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: anvil-app
+                port: { number: 80 }

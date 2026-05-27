@@ -1,0 +1,11 @@
+# Keep the build context tiny and avoid leaking local cruft into the image.
+**/__pycache__/
+*.pyc
+*.pyo
+*.log
+.env
+.git
+.gitignore
+*.md
+build.sh
+.DS_Store

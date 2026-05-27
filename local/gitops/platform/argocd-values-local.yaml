@@ -1,0 +1,34 @@
+# ============================================================================
+# Argo CD Helm values — LOCAL (kind)
+# Same engine as the AWS dev values, but exposed via ingress-nginx instead of
+# an ALB, so you get a real browser URL (https://argocd.local) with no bastion.
+# ============================================================================
+crds:
+  install: true
+  keep: true
+ 
+global:
+  domain: argocd.local
+ 
+configs:
+  params:
+    server.insecure: true          # nginx terminates; argocd serves http
+ 
+# One server block only (replicas + ingress together).
+server:
+  replicas: 1
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    hostname: argocd.local
+    annotations:
+      nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    tls: true                       # self-signed; fine for local
+ 
+# single replica — it's a laptop
+controller: { replicas: 1 }
+repoServer: { replicas: 1 }
+dex:           { enabled: false }
+notifications: { enabled: false }
+redis:         { enabled: true }

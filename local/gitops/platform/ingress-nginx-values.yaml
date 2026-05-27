@@ -1,0 +1,14 @@
+# ingress-nginx values for kind (ALB/NLB stand-in).
+# Bind directly to the control-plane node that has the host port mappings.
+controller:
+  hostPort:
+    enabled: true
+  service:
+    type: NodePort
+  nodeSelector:
+    ingress-ready: "true"
+  tolerations:
+    - key: node-role.kubernetes.io/control-plane
+      operator: Equal
+      effect: NoSchedule
+  watchIngressWithoutClass: true

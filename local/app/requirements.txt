@@ -1,0 +1,4 @@
+# Local (Ollama) build needs nothing beyond the stdlib.
+# Uncomment for the AWS/Bedrock build (AI_BACKEND=bedrock):
+# boto3==1.35.99
+ 
