@@ -13,6 +13,7 @@ RUN groupadd --system --gid 10001 app && \
 WORKDIR /app
 COPY --from=builder /install /usr/local
 COPY --chown=10001:10001 main.py .
+COPY --chown=10001:10001 index.html .
 USER 10001
 EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
