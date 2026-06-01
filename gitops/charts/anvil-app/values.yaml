@@ -19,6 +19,10 @@ ingress:
   host: anvil-app.local
   annotations:
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    # LLM inference on CPU is slow; raise the default 60s timeouts.
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
 
 # --- AI backend (the swap point) -------------------------------------------
 ai:
