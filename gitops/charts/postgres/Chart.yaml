@@ -1,0 +1,8 @@
+apiVersion: v2
+name: postgres
+description: Postgres 17 with pgvector for RAG retrieval — backs anvil-app's knowledge base
+type: application
+version: 0.1.0
+appVersion: "17"
+maintainers:
+  - name: Terence Tatefua

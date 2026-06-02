@@ -1,0 +1,39 @@
+# values.yaml — defaults for the postgres chart.
+
+# --- workload ---------------------------------------------------------------
+image:
+  repository: pgvector/pgvector
+  tag: pg17
+  pullPolicy: IfNotPresent
+
+# --- database settings ------------------------------------------------------
+database:
+  name: anvilrag
+  user: anvil
+
+# --- secret management ------------------------------------------------------
+# create: true     -> chart creates the Secret from values below (dev default)
+# create: false    -> chart references an existing Secret by `existingName`
+#                     (production: create it via kubectl, External Secrets, or Sealed Secrets)
+secret:
+  create: true
+  existingName: ""
+  # DEV-ONLY DEFAULT. Used only when create=true.
+  password: anvil-dev-password-change-me
+
+# --- networking -------------------------------------------------------------
+service:
+  port: 5432
+
+# --- storage ----------------------------------------------------------------
+persistence:
+  size: 1Gi
+  storageClassName: standard
+
+# --- resources --------------------------------------------------------------
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    memory: 512Mi
